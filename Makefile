@@ -19,13 +19,14 @@ ALIB=libdarknet.a
 EXEC=darknet
 OBJDIR=./obj/
 
-CC=gcc
-CPP=g++
+CC=riscv64-poky-linux-gcc
+CPP=riscv64-poky-linux-g++
+SYSROOT= ../opt/poky/3.1.21/sysroots/riscv64-poky-linux/
 NVCC=nvcc 
 AR=ar
 ARFLAGS=rcs
 OPTS=-Ofast
-LDFLAGS= -lm -pthread 
+LDFLAGS= -lm -pthread
 COMMON= -Iinclude/ -Isrc/
 CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -fPIC
 
@@ -74,22 +75,22 @@ all: obj backup results $(SLIB) $(ALIB) $(EXEC)
 
 
 $(EXEC): $(EXECOBJ) $(ALIB)
-	$(CC) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(ALIB)
+	$(CC) $(COMMON) $(CFLAGS) $^ -o $@ $(LDFLAGS) $(ALIB) --sysroot=$(SYSROOT)
 
 $(ALIB): $(OBJS)
-	$(AR) $(ARFLAGS) $@ $^
+	$(AR) $(ARFLAGS) $@ $^ 
 
 $(SLIB): $(OBJS)
-	$(CC) $(CFLAGS) -shared $^ -o $@ $(LDFLAGS)
+	$(CC) $(CFLAGS) -shared $^ -o $@ $(LDFLAGS) --sysroot=$(SYSROOT)
 
 $(OBJDIR)%.o: %.cpp $(DEPS)
-	$(CPP) $(COMMON) $(CFLAGS) -c $< -o $@
+	$(CPP) $(COMMON) $(CFLAGS) -c $< -o $@ --sysroot=$(SYSROOT)
 
 $(OBJDIR)%.o: %.c $(DEPS)
-	$(CC) $(COMMON) $(CFLAGS) -c $< -o $@
+	$(CC) $(COMMON) $(CFLAGS) -c $< -o $@ --sysroot=$(SYSROOT)
 
 $(OBJDIR)%.o: %.cu $(DEPS)
-	$(NVCC) $(ARCH) $(COMMON) --compiler-options "$(CFLAGS)" -c $< -o $@
+	$(NVCC) $(ARCH) $(COMMON) --compiler-options "$(CFLAGS)" -c $< -o $@ --sysroot=$(SYSROOT)
 
 obj:
 	mkdir -p obj
