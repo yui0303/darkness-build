@@ -765,10 +765,11 @@ network *parse_network_cfg(char *filename)
     n = n->next;
     int count = 0;
     free_section(s);
-    fprintf(stderr, "layer     filters    size              input                output\n");
+    
+    // fprintf(stderr, "layer     filters    size              input                output\n");
     while(n){
         params.index = count;
-        fprintf(stderr, "%5d ", count);
+        // fprintf(stderr, "%5d ", count);
         s = (section *)n->val;
         options = s->options;
         layer l = {0};
@@ -830,6 +831,7 @@ network *parse_network_cfg(char *filename)
             l = parse_dropout(options, params);
             l.output = net->layers[count-1].output;
             l.delta = net->layers[count-1].delta;
+            
 #ifdef GPU
             l.output_gpu = net->layers[count-1].output_gpu;
             l.delta_gpu = net->layers[count-1].delta_gpu;
@@ -860,6 +862,7 @@ network *parse_network_cfg(char *filename)
             params.inputs = l.outputs;
         }
     }
+
     free_list(sections);
     layer out = get_network_output_layer(net);
     net->outputs = out.outputs;
