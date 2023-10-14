@@ -2,6 +2,7 @@
 
 #include <sys/time.h>
 #include <assert.h>
+#include <stdio.h>
 
 float *get_regression_values(char **labels, int n)
 {
@@ -604,6 +605,12 @@ void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *fi
             //else printf("%s: %f\n",names[index], predictions[index]);
             printf("%5.2f%%: %s\n", predictions[index]*100, names[index]);
         }
+
+        FILE* fp = fopen("predict_result", "w");
+        if(names[0][0] == 'C'){ fprintf(fp, "1"); }
+        else{ fprintf(fp, "0"); }
+        fclose(fp);
+
         if(r.data != im.data) free_image(r);
         free_image(im);
         if (filename) break;
