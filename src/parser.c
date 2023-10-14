@@ -776,6 +776,8 @@ network *parse_network_cfg(char *filename)
         LAYER_TYPE lt = string_to_layer_type(s->type);
         if(lt == CONVOLUTIONAL){
             l = parse_convolutional(options, params);
+        }else if(lt == MAXPOOL){
+            l = parse_maxpool(options, params);
         }else if(lt == DECONVOLUTIONAL){
             l = parse_deconvolutional(options, params);
         }else if(lt == LOCAL){
@@ -815,8 +817,6 @@ network *parse_network_cfg(char *filename)
             l = parse_normalization(options, params);
         }else if(lt == BATCHNORM){
             l = parse_batchnorm(options, params);
-        }else if(lt == MAXPOOL){
-            l = parse_maxpool(options, params);
         }else if(lt == REORG){
             l = parse_reorg(options, params);
         }else if(lt == AVGPOOL){
