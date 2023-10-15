@@ -576,6 +576,8 @@ void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *fi
     int *indexes = calloc(top, sizeof(int));
     char buff[256];
     char *input = buff;
+    float my_max = 0;
+    int max_index = -1;
     while(1){
         if(filename){
             strncpy(input, filename, 256);
@@ -604,11 +606,15 @@ void predict_classifier(char *datacfg, char *cfgfile, char *weightfile, char *fi
             //if(net->hierarchy) printf("%d, %s: %f, parent: %s \n",index, names[index], predictions[index], (net->hierarchy->parent[index] >= 0) ? names[net->hierarchy->parent[index]] : "Root");
             //else printf("%s: %f\n",names[index], predictions[index]);
             printf("%5.2f%%: %s\n", predictions[index]*100, names[index]);
+            if(predictions[index] > my_max){
+                my_max = predictions[index];
+                max_index = index;
+            }
         }
-
         FILE* fp = fopen("predict_result", "w");
-        if(names[0][0] == 'C'){ fprintf(fp, "1"); }
-        else{ fprintf(fp, "0"); }
+        if(names[max_index][0] == 'C'){ fprintf(fp, "1"); }
+        else if (names[max_index][0] == 'N'){ fprintf(fp, "0"); }
+        else fprintf(fp, names[max_index]);
         fclose(fp);
 
         if(r.data != im.data) free_image(r);
