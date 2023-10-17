@@ -1,0 +1,6 @@
+classes=2
+train = list/train.list
+valid = list/test.list
+labels = list/labels.list
+backup = backup/
+top = 2
