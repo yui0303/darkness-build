@@ -585,8 +585,8 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             strncpy(input, filename, 255);
             input[255] = '\0';
         } else {
-            // printf("Enter Image Path: ");
-            sprintf(buff, "gen/img_%d.jpg", cnt);
+            printf("Enter Image Path: ");
+            // sprintf(buff, "gen/img_%d.jpg", cnt);
 
             //take a picture
             // sprintf(buff3, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=gen/img_%d", cnt);
@@ -597,12 +597,12 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             // }
 
             // Wait for the file to exist using a blocking method
-            while (access(buff, F_OK) == -1) // File does not exist yet, continue waiting
-            ;;
+            // while (access(buff, F_OK) == -1) // File does not exist yet, continue waiting
+            // ;;
             
-            // fflush(stdout);
-            // input = fgets(input, 256, stdin);
-            // if(!input) return;
+            fflush(stdout);
+            input = fgets(input, 256, stdin);
+            if(!input) return;
             strtok(input, "\n");
         }
         image im = load_image_color(input,0,0);
@@ -629,7 +629,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             save_image(im, outfile);
         }
         else{
-            sprintf(buff2, "predictions/predict_%d.jpg", ++cnt);
+            // sprintf(buff2, "predictions/predict_%d.jpg", ++cnt);
             save_image(im, buff2);
 #ifdef OPENCV
             make_window("predictions", 512, 512, 0);
@@ -640,9 +640,9 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         free_image(im);
         free_image(sized);
 
-        if (remove(buff) == -1) {
-            printf("Unable to remove the file %s\n", buff);
-        } 
+        // if (remove(buff) == -1) {
+        //     printf("Unable to remove the file %s\n", buff);
+        // } 
 
         if (filename) break;
     }
