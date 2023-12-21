@@ -563,7 +563,7 @@ void validate_detector_recall(char *cfgfile, char *weightfile)
 
 void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile, int fullscreen)
 {
-    int cnt = -1;
+    int cnt = 0;
     list *options = read_data_cfg(datacfg);
     char *name_list = option_find_str(options, "names", "data/names.list");
     char **names = get_labels(name_list);
@@ -631,7 +631,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             save_image(im, outfile);
         }
         else{
-            sprintf(buff2, "predictions/predict_%d.jpg", ++cnt);
+            sprintf(buff2, "predictions/predict_%d.jpg", cnt++);
             save_image(im, buff2);
 #ifdef OPENCV
             make_window("predictions", 512, 512, 0);
