@@ -594,7 +594,6 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
                 int result = system("v4l2-ctl --stream-mmap --stream-count=1 --stream-to=image.jpg");
                 if (result != 0) {
                     printf("Unable to take a picture\n");
-                    return;
                 } 
                 else break;          
             }
