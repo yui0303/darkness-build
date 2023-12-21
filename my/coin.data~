@@ -1,6 +1,0 @@
-classes=2
-train = train.list
-valid = test.list
-labels = labels.list
-backup = backup/
-top = 2
