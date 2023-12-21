@@ -586,19 +586,22 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             input[255] = '\0';
         } else {
             printf("Enter Image Path: ");
-            // sprintf(buff, "gen/img_%d.jpg", cnt);
+            sprintf(buff, "gen/img_%d.jpg", cnt);
 
             //take a picture
-            // sprintf(buff3, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=gen/img_%d", cnt);
-            // int result = system("v4l2-ctl --stream-mmap --stream-count=1 --stream-to=image.jpg");
-            // if (result != 0) {
-            //     printf("Unable to take a picture\n");
-            //     return;
-            // }
+            while(1){
+                sprintf(buff3, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=gen/img_%d", cnt);
+                int result = system("v4l2-ctl --stream-mmap --stream-count=1 --stream-to=image.jpg");
+                if (result != 0) {
+                    printf("Unable to take a picture\n");
+                    return;
+                } 
+                else break;          
+            }
 
             // Wait for the file to exist using a blocking method
-            // while (access(buff, F_OK) == -1) // File does not exist yet, continue waiting
-            // ;;
+            while (access(buff, F_OK) == -1) // File does not exist yet, continue waiting
+            ;;
             
             fflush(stdout);
             input = fgets(input, 256, stdin);
