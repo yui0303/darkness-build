@@ -589,12 +589,12 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             sprintf(buff, "gen/img_%d.jpg", cnt);
 
             //take a picture
-            sprintf(buff3, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=gen/img_%d", cnt);
-            int result = system("v4l2-ctl --stream-mmap --stream-count=1 --stream-to=image.jpg");
-            if (result != 0) {
-                printf("Unable to take a picture\n");
-                return;
-            }
+            // sprintf(buff3, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=gen/img_%d", cnt);
+            // int result = system("v4l2-ctl --stream-mmap --stream-count=1 --stream-to=image.jpg");
+            // if (result != 0) {
+            //     printf("Unable to take a picture\n");
+            //     return;
+            // }
 
             // Wait for the file to exist using a blocking method
             while (access(buff, F_OK) == -1) // File does not exist yet, continue waiting
