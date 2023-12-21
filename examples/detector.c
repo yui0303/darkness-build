@@ -575,36 +575,36 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     double time;
     char buff[256]={0};
     char buff2[256]={0};
-    char buff3[256]={0};
+    // char buff3[256]={0};
 
     char *input = buff;
     float nms=.45;
     while(1){
-        printf("In while loop\n");
+        // printf("In while loop\n");
         if(filename){
             strncpy(input, filename, 255);
             input[255] = '\0';
         } else {
-            printf("Enter Image Path: ");
+            // printf("Enter Image Path: ");
             sprintf(buff, "gen/img_%d.jpg", cnt);
 
             //take a picture
-            while(1){
-                sprintf(buff3, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=gen/img_%d", cnt);
-                int result = system("v4l2-ctl --stream-mmap --stream-count=1 --stream-to=image.jpg");
-                if (result != 0) {
-                    printf("Unable to take a picture\n");
-                } 
-                else break;          
-            }
+            // while(1){
+            //     sprintf(buff3, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=gen/img_%d", cnt);
+            //     int result = system("v4l2-ctl --stream-mmap --stream-count=1 --stream-to=image.jpg");
+            //     if (result != 0) {
+            //         printf("Unable to take a picture\n");
+            //     } 
+            //     else break;          
+            // }
 
             // Wait for the file to exist using a blocking method
             while (access(buff, F_OK) == -1) // File does not exist yet, continue waiting
             ;;
             
-            fflush(stdout);
-            input = fgets(input, 256, stdin);
-            if(!input) return;
+            // fflush(stdout);
+            // input = fgets(input, 256, stdin);
+            // if(!input) return;
             strtok(input, "\n");
         }
         image im = load_image_color(input,0,0);
