@@ -580,6 +580,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     char *input = buff;
     float nms=.45;
     while(1){
+        printf("In while loop\n");
         if(filename){
             strncpy(input, filename, 255);
             input[255] = '\0';
