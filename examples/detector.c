@@ -629,7 +629,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             save_image(im, outfile);
         }
         else{
-            // sprintf(buff2, "predictions/predict_%d.jpg", ++cnt);
+            sprintf(buff2, "predictions/predict_%d.jpg", ++cnt);
             save_image(im, buff2);
 #ifdef OPENCV
             make_window("predictions", 512, 512, 0);
