@@ -709,7 +709,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
 
     char *input = input_pic_path;
     float nms=.45;
-
+    printf("Network loaded\n");
     while(1){
         sprintf(input_pic_path, "./gen/img_%d.jpg", cnt);
 
