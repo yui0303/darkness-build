@@ -21,7 +21,7 @@ OBJDIR=./obj/
 
 CC=riscv64-poky-linux-gcc
 CPP=riscv64-poky-linux-g++
-SYSROOT= ../opt/poky/3.1.21/sysroots/riscv64-poky-linux/
+SYSROOT= /opt/poky/3.1.21/sysroots/riscv64-poky-linux/
 NVCC=nvcc 
 AR=ar
 ARFLAGS=rcs

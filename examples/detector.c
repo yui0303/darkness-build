@@ -582,7 +582,11 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     float nms=.45;
     // print current directory
     printf("Current directory: ");
-    system("pwd");
+
+    int ret = system("pwd");
+    if (ret != 0) {
+        printf("Unable to print current directory\n");
+    }
     while(1){
         // printf("In while loop\n");
         if(filename){
