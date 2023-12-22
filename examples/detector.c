@@ -685,6 +685,27 @@ void light_ldle_with_switch(unsigned int line_num_light, unsigned int line_num_s
 void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile, int fullscreen)
 {
     int cnt = 0;
+    char *chipname="gpiochip0";
+	struct gpiod_chip *chip;
+	struct gpiod_line *line;
+	int ret;
+
+    chip = gpiod_chip_open_by_name(chipname);
+    if(!chip){
+		perror("Open chip failed\n");
+		return;
+	}
+    line = gpiod_chip_get_line(chip, 122);
+    if(!line){
+		perror("Get line failed\n");
+		gpiod_chip_close(chip);
+        return;
+	}
+    ret = gpiod_line_request_output(line, "x", 0);
+    if(ret<0){
+        perror("Request line as output failed\n");
+        gpiod_line_release(line);
+    }
 
     list *options = read_data_cfg(datacfg);
     list *coco_options = read_data_cfg("./custom_data/coco.data");
@@ -762,6 +783,12 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             continue;
         }
 
+        ret = gpiod_line_set_value(line, 1);
+        if(ret<0){
+            perror("Set line output failed\n");
+            gpiod_line_release(line);
+        }
+
         // ==============================================================
 
         // image im = load_image_color(input,0,0);
@@ -781,6 +808,12 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         if (nms) do_nms_sort(dets, nboxes, l.classes, nms);
         int coin_is_detect = draw_detections2(im, dets, nboxes, thresh, names, alphabet, l.classes);
         free_detections(dets, nboxes);
+
+        ret = gpiod_line_set_value(line, 0);
+        if(ret<0){
+            perror("Set line output failed\n");
+            gpiod_line_release(line);
+        }
 
         if (coin_is_detect == 1){
             light_with_line(121);
