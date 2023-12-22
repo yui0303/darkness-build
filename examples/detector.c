@@ -603,6 +603,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
                 int result = system(take_pic_cmd);
                 if (result != 0) {
                     printf("Unable to take a picture\n");
+                    printf("Command status: %d\n", result);
                 } 
                 else break;          
             }
