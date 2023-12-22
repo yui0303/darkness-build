@@ -618,26 +618,26 @@ void light_ldle_with_switch(unsigned int line_num_light, unsigned int line_num_s
 	struct gpiod_chip *chip;
 	struct gpiod_line *line_led, *line_switch;
 	int light_ret, switch_ret;
-    unsigned int light_val;
+    unsigned int light_val = 0;
     double switch_val;
     
 
     chip = gpiod_chip_open_by_name(chipname);
     if(!chip){
 		perror("Open chip failed\n");
-		return -1;
+		return;
 	}
     line_led = gpiod_chip_get_line(chip, line_num_light);
     if(!line_led){
 		perror("Get line failed\n");
 		gpiod_chip_close(chip);
-        return -1;
+        return;
 	}
     line_switch = gpiod_chip_get_line(chip, line_num_switch);
     if(!line_switch){
 		perror("Get line failed\n");
 		gpiod_chip_close(chip);
-        return -1;
+        return;
 	}
     light_ret = gpiod_line_request_output(line_led, "lighter", 0);
     if(light_ret<0){
@@ -672,6 +672,7 @@ void light_ldle_with_switch(unsigned int line_num_light, unsigned int line_num_s
                 perror("Set line output failed\n");
                 gpiod_line_release(line_led);
             }
+            sleep(1);
         }
     }
 }
