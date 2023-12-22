@@ -624,7 +624,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             // Wait for the file to exist using a blocking method
             while (access(input_pic_path, F_OK) == -1) // File does not exist yet, continue waiting
             ;;
-            
+            printf("File exists\n");
             // fflush(stdout);
             // input = fgets(input, 256, stdin);
             // if(!input) return;
