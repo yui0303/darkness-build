@@ -630,6 +630,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             // if(!input) return;
             strtok(input, "\n");
         }
+        printf("load image color\n");
         image im = load_image_color(input,0,0);
         image sized = letterbox_image(im, net->w, net->h);
         //image sized = resize_image(im, net->w, net->h);
@@ -638,7 +639,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         //resize_network(net, sized.w, sized.h);
         layer l = net->layers[net->n-1];
 
-
+        printf("hello\n");
         float *X = sized.data;
         sprintf(predict_path, "./predictions/predict_%d", cnt++);
         time=what_time_is_it_now();
