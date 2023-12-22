@@ -585,7 +585,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
 
     int ret = system("pwd");
     if (ret != 0) {
-        printf("Unable to print current directory\n");
+        perror("Unable to print current directory\n");
     }
     while(1){
         // printf("In while loop\n");
@@ -608,6 +608,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
                     // sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d", cnt);
                     sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=../final/gen/img_%d.jpg", cnt);
                     int result = system(take_pic_cmd);
+
                     if (result != 0) {
                         printf("Unable to take a picture\n");
                         printf("Command status: %d\n", result);
