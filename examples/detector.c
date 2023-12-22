@@ -583,12 +583,12 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     // print current directory
     printf("Current directory: ");
 
-    int ret = system("pwd");
-    if (ret != 0) {
-        perror("Unable to print current directory\n");
-        exit(1);
-    }
-    return;
+    // int ret = system("pwd");
+    // if (ret != 0) {
+    //     perror("Unable to print current directory\n");
+    //     exit(1);
+    // }
+    // return;
     while(1){
         // printf("In while loop\n");
         if(filename){
@@ -602,23 +602,23 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             // pid_t child_pid = fork();
             // if (child_pid < 0) {
             //     perror("Unable to fork\n");
-            //     // exit(1);
+            //     exit(1);
             // }
             // else if(child_pid == 0) {
-            //     while(1){
-            //         printf("Taking a picture to %s\n", input_pic_path);
-            //         // sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d", cnt);
-            //         sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=../final/gen/img_%d.jpg", cnt);
-            //         int result = system(take_pic_cmd);
+                while(1){
+                    printf("Taking a picture to %s\n", input_pic_path);
+                    // sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d", cnt);
+                    sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d.jpg", cnt);
+                    int result = system(take_pic_cmd);
 
-            //         if (result != 0) {
-            //             printf("Unable to take a picture\n");
-            //             printf("Command status: %d\n", result);
-            //         } 
-            //         else break;          
-            //     }
-            //     printf("Picture taken\n");
-            //     // exit(0);
+                    if (result != 0) {
+                        printf("Unable to take a picture\n");
+                        printf("Command status: %d\n", result);
+                    } 
+                    else break;          
+                }
+                printf("Picture taken\n");
+                // exit(0);
             // }
 
             // Wait for the file to exist using a blocking method
