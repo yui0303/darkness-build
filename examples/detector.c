@@ -736,7 +736,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         network_predict(coco_net, coco_X);
         printf("%s: Top Model Predicted in %f seconds.\n", predict_path, what_time_is_it_now()-time);
         int coco_nboxes = 0;
-        detection *coco_dets = get_network_boxes(coco_net, im.w, im.h, thresh, hier_thresh, 0, 1, &coco_nboxes);
+        detection *coco_dets = get_network_boxes(coco_net, im.w, im.h, thresh, 0.45, 0, 1, &coco_nboxes);
         //printf("%d\n", nboxes);
         //if (nms) do_nms_obj(boxes, probs, l.w*l.h*l.n, l.classes, nms);
         if (nms) do_nms_sort(coco_dets, coco_nboxes, coco_l.classes, nms);
