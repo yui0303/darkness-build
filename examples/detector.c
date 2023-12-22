@@ -637,6 +637,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         //if (nms) do_nms_obj(boxes, probs, l.w*l.h*l.n, l.classes, nms);
         if (nms) do_nms_sort(coco_dets, coco_nboxes, coco_l.classes, nms);
         int coco_is_detect = draw_detections2(im, coco_dets, coco_nboxes, thresh, coco_names, alphabet, coco_l.classes);
+        printf("coco_is_detect: %d\n", coco_is_detect);
         free_detections(coco_dets, coco_nboxes);
 
         if (coco_is_detect == 1) {
