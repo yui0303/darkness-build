@@ -637,6 +637,7 @@ void wait_for_switch()
 
     while(1){
         switch_val = gpiod_line_get_value(line_switch);
+        printf("Switch value: %f\n", switch_val);
         if (switch_val > 0.8) {
             break;
         }
