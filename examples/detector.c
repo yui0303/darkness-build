@@ -641,6 +641,7 @@ void wait_for_switch()
         if (switch_val > 0.8) {
             break;
         }
+        sleep(1);
     }
 
     gpiod_line_release(line_switch);
