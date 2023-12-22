@@ -652,20 +652,20 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     int cnt = 0;
     char *chipname="gpiochip0";
 	struct gpiod_chip *chip;
-	struct gpiod_line *line1, *line2, *line3, *line_switch;
-	int ret1, ret2, ret3, ret_switch;
+	struct gpiod_line *line1, *line2, *line3;
+	int ret1, ret2, ret3;
 
     chip = gpiod_chip_open_by_name(chipname); if(!chip){ perror("Open chip failed\n"); return; }
 
     line1 = gpiod_chip_get_line(chip, PIN1); if(!line1){ perror("Get line1 failed\n"); gpiod_chip_close(chip); return; }
     line2 = gpiod_chip_get_line(chip, PIN2); if(!line2){ perror("Get line2 failed\n"); gpiod_chip_close(chip); return; }
     line3 = gpiod_chip_get_line(chip, PIN3); if(!line3){ perror("Get line3 failed\n"); gpiod_chip_close(chip); return; }
-    line_switch = gpiod_chip_get_line(chip, SWITCH_PIN); if(!line_switch){ perror("Get line switch failed\n"); gpiod_chip_close(chip); return; }
+    // line_switch = gpiod_chip_get_line(chip, SWITCH_PIN); if(!line_switch){ perror("Get line switch failed\n"); gpiod_chip_close(chip); return; }
     
     ret1 = gpiod_line_request_output(line1, "line1", 0); if (ret1<0){ perror("Request line1 as output failed\n"); gpiod_line_release(line1); return; }
     ret2 = gpiod_line_request_output(line2, "line2", 0); if (ret2<0){ perror("Request line2 as output failed\n"); gpiod_line_release(line2); return; }
     ret3 = gpiod_line_request_output(line3, "line3", 0); if (ret3<0){ perror("Request line3 as output failed\n"); gpiod_line_release(line3); return; }
-    ret_switch = gpiod_line_request_input(line_switch, "switch"); if (ret_switch<0){ perror("Request line switch as input failed\n"); gpiod_line_release(line_switch); }
+    // ret_switch = gpiod_line_request_input(line_switch, "switch"); if (ret_switch<0){ perror("Request line switch as input failed\n"); gpiod_line_release(line_switch); }
 
     list *options = read_data_cfg(datacfg);
     list *coco_options = read_data_cfg("./custom_data/coco.data");
