@@ -597,7 +597,12 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             sprintf(input_pic_path, "./gen/img_%d.jpg", cnt);
 
             //take a picture
-            if(fork() == 0) {
+            pid_t child_pid = fork();
+            if (child_pid < 0) {
+                printf("Unable to fork\n");
+                exit(1);
+            }
+            else if(child_pid == 0) {
                 while(1){
                     printf("Taking a picture to %s\n", input_pic_path);
                     // sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d", cnt);
