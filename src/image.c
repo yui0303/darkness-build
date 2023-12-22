@@ -313,6 +313,8 @@ int draw_detections2(image im, detection *dets, int num, float thresh, char **na
 {
     int i,j;
     int ret = 0;
+    char dog[] = "dog";
+    char person[] = "person";
     for(i = 0; i < num; ++i){
         char labelstr[4096] = {0};
         int class = -1;
@@ -326,6 +328,8 @@ int draw_detections2(image im, detection *dets, int num, float thresh, char **na
                     strcat(labelstr, ", ");
                     strcat(labelstr, names[j]);
                 }
+                if (strcmp(names[j], person) == 0 && ret != 2) ret = 1;
+                if (strcmp(names[j], dog) == 0) ret = 2;
                 printf("%s: %.0f%%\n", names[j], dets[i].prob[j]*100);
             }
         }

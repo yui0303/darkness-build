@@ -3,6 +3,13 @@
 #include <stdlib.h>
 #include <gpiod.h>
 
+#define IDLE 120
+#define COIN 121
+#define XLIGHT 122
+#define SWITCH_PIN 125
+#define PERSON 145
+#define DOG 146
+
 static int coco_ids[] = {1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,27,28,31,32,33,34,35,36,37,38,39,40,41,42,43,44,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,67,70,72,73,74,75,76,77,78,79,80,81,82,84,85,86,87,88,89,90};
 
 
@@ -695,7 +702,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
 		perror("Open chip failed\n");
 		return;
 	}
-    line = gpiod_chip_get_line(chip, 122);
+    line = gpiod_chip_get_line(chip, XLIGHT);
     if(!line){
 		perror("Get line failed\n");
 		gpiod_chip_close(chip);
@@ -735,7 +742,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     while(1){
         sprintf(input_pic_path, "./gen/img_%d.jpg", cnt);
 
-        light_ldle_with_switch(120, 123);
+        light_ldle_with_switch(IDLE, SWITCH_PIN);
 
         while(1){
             printf("Taking a picture to %s\n", input_pic_path);
@@ -775,8 +782,9 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         printf("coco_is_detect: %d\n", coco_is_detect);
         free_detections(coco_dets, coco_nboxes);
 
-        if (coco_is_detect == 1) {
-            light_with_line(121);
+        if (coco_is_detect > 0 && coco_is_detect < 3) { // 1 = person, 2 = dog
+            unsigned int num = coco_is_detect == 2 ? DOG : PERSON;
+            light_with_line(num);
             save_image(im, predict_path);
             // free_image(im);
             free_image(coco_sized);
@@ -816,7 +824,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         }
 
         if (coin_is_detect == 1){
-            light_with_line(121);
+            light_with_line(COIN);
         }
         save_image(im, predict_path);
 
