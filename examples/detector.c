@@ -597,18 +597,22 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             sprintf(input_pic_path, "./gen/img_%d.jpg", cnt);
 
             //take a picture
-            while(1){
-                printf("Taking a picture to %s\n", input_pic_path);
-                // sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d", cnt);
-                sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=../final/gen/img_%d.jpg", cnt);
-                int result = system(take_pic_cmd);
-                if (result != 0) {
-                    printf("Unable to take a picture\n");
-                    printf("Command status: %d\n", result);
-                } 
-                else break;          
+            if(fork() == 0) {
+                while(1){
+                    printf("Taking a picture to %s\n", input_pic_path);
+                    // sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d", cnt);
+                    sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=../final/gen/img_%d.jpg", cnt);
+                    int result = system(take_pic_cmd);
+                    if (result != 0) {
+                        printf("Unable to take a picture\n");
+                        printf("Command status: %d\n", result);
+                    } 
+                    else break;          
+                }
+                printf("Picture taken\n");
+                exit(0);
             }
-            printf("Picture taken\n");
+
             // Wait for the file to exist using a blocking method
             while (access(input_pic_path, F_OK) == -1) // File does not exist yet, continue waiting
             ;;
