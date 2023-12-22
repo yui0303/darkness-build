@@ -318,12 +318,11 @@ int draw_detections2(image im, detection *dets, int num, float thresh, char **na
         int class = -1;
         for(j = 0; j < classes; ++j){
             if (dets[i].prob[j] > thresh){
-                
+                ret = 1;
                 if (class < 0) {
                     strcat(labelstr, names[j]);
                     class = j;
                 } else {
-                    ret = 1;
                     strcat(labelstr, ", ");
                     strcat(labelstr, names[j]);
                 }
