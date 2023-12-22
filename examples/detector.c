@@ -599,7 +599,6 @@ void light_with_line(unsigned int line_num)
             gpiod_line_release(line);
         }
         // printf("Output %u on line #%u\n", val, line_num);
-        printf("Output %u on line #%u\n", val, line_num);
         sleep(1);
         val = !val;
     }
@@ -610,6 +609,8 @@ void light_with_line(unsigned int line_num)
         perror("Set line output failed\n");
         gpiod_line_release(line);
     }
+    gpiod_line_release(line);
+    gpiod_chip_close(chip);
 }
 
 void light_ldle_with_switch(unsigned int line_num_light, unsigned int line_num_switch)
