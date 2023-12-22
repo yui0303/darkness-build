@@ -573,12 +573,14 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     set_batch_network(net, 1);
     srand(2222222);
     double time;
-    char buff[256]={0};
-    char buff2[256]={0};
-    // char buff3[256]={0};
+    char input_pic_path[256]={0};
+    char predict_path[256]={0};
+    char take_pic_cmd[256]={0};
 
-    char *input = buff;
+    char *input = input_pic_path;
     float nms=.45;
+    // print current directory
+    system("pwd");
     while(1){
         // printf("In while loop\n");
         if(filename){
@@ -586,20 +588,21 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             input[255] = '\0';
         } else {
             // printf("Enter Image Path: ");
-            sprintf(buff, "gen/img_%d.jpg", cnt);
+            sprintf(input_pic_path, "./gen/img_%d.jpg", cnt);
 
             //take a picture
-            // while(1){
-            //     sprintf(buff3, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=gen/img_%d", cnt);
-            //     int result = system("v4l2-ctl --stream-mmap --stream-count=1 --stream-to=image.jpg");
-            //     if (result != 0) {
-            //         printf("Unable to take a picture\n");
-            //     } 
-            //     else break;          
-            // }
-
+            while(1){
+                printf("Taking a picture to %s\n", input_pic_path);
+                sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d", cnt);
+                int result = system(take_pic_cmd);
+                if (result != 0) {
+                    printf("Unable to take a picture\n");
+                } 
+                else break;          
+            }
+            printf("Picture taken\n");
             // Wait for the file to exist using a blocking method
-            while (access(buff, F_OK) == -1) // File does not exist yet, continue waiting
+            while (access(input_pic_path, F_OK) == -1) // File does not exist yet, continue waiting
             ;;
             
             // fflush(stdout);
@@ -617,9 +620,10 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
 
 
         float *X = sized.data;
+        sprintf(predict_path, "./predictions/predict_%d", cnt++);
         time=what_time_is_it_now();
         network_predict(net, X);
-        printf("%s: Predicted in %f seconds.\n", input, what_time_is_it_now()-time);
+        printf("%s: Predicted in %f seconds.\n", predict_path, what_time_is_it_now()-time);
         int nboxes = 0;
         detection *dets = get_network_boxes(net, im.w, im.h, thresh, hier_thresh, 0, 1, &nboxes);
         //printf("%d\n", nboxes);
@@ -631,8 +635,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             save_image(im, outfile);
         }
         else{
-            sprintf(buff2, "predictions/predict_%d", cnt++);
-            save_image(im, buff2);
+            save_image(im, predict_path);
 #ifdef OPENCV
             make_window("predictions", 512, 512, 0);
             show_image(im, "predictions", 0);
