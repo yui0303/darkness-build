@@ -26,7 +26,7 @@ NVCC=nvcc
 AR=ar
 ARFLAGS=rcs
 OPTS=-Ofast
-LDFLAGS= -lm -pthread
+LDFLAGS= -lm -pthread -lgpiod
 COMMON= -Iinclude/ -Isrc/
 CFLAGS=-Wall -Wno-unused-result -Wno-unknown-pragmas -Wfatal-errors -fPIC
 

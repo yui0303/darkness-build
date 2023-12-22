@@ -1,7 +1,7 @@
 #include "darknet.h"
 #include <unistd.h>
-#include <stdio.h>
 #include <stdlib.h>
+#include <gpiod.h>
 
 static int coco_ids[] = {1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,27,28,31,32,33,34,35,36,37,38,39,40,41,42,43,44,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,67,70,72,73,74,75,76,77,78,79,80,81,82,84,85,86,87,88,89,90};
 
@@ -561,6 +561,121 @@ void validate_detector_recall(char *cfgfile, char *weightfile)
     }
 }
 
+void light_with_line(unsigned int line_num)
+{
+    char *chipname="gpiochip0";
+	struct gpiod_chip *chip;
+	struct gpiod_line *line;
+	int ret;
+    unsigned int val;
+
+    chip = gpiod_chip_open_by_name(chipname);
+    if(!chip){
+		perror("Open chip failed\n");
+		return;
+	}
+
+	line = gpiod_chip_get_line(chip, line_num);
+
+	if(!line){
+		perror("Get line failed\n");
+		gpiod_chip_close(chip);
+        return;
+	}
+
+    
+    ret = gpiod_line_request_output(line, "lighter", 0);
+    if(ret<0){
+        perror("Request line as output failed\n");
+        gpiod_line_release(line);
+    }
+
+    val = 1;
+    for(int i=5; i>0; i--){
+        printf("enter loop!");
+        ret = gpiod_line_set_value(line, val);
+        if(ret<0){
+            perror("Set line output failed\n");
+            gpiod_line_release(line);
+        }
+        // printf("Output %u on line #%u\n", val, line_num);
+        printf("Output %u on line #%u\n", val, line_num);
+        sleep(1);
+        val = !val;
+    }
+
+    val = 0;
+    ret = gpiod_line_set_value(line, val);
+    if(ret<0){
+        perror("Set line output failed\n");
+        gpiod_line_release(line);
+    }
+}
+
+void light_ldle_with_switch(unsigned int line_num_light, unsigned int line_num_switch)
+{
+    char *chipname="gpiochip0";
+	struct gpiod_chip *chip;
+	struct gpiod_line *line_led, *line_switch;
+	int light_ret, switch_ret;
+    unsigned int light_val;
+    double switch_val;
+    
+
+    chip = gpiod_chip_open_by_name(chipname);
+    if(!chip){
+		perror("Open chip failed\n");
+		return -1;
+	}
+    line_led = gpiod_chip_get_line(chip, line_num_light);
+    if(!line_led){
+		perror("Get line failed\n");
+		gpiod_chip_close(chip);
+        return -1;
+	}
+    line_switch = gpiod_chip_get_line(chip, line_num_switch);
+    if(!line_switch){
+		perror("Get line failed\n");
+		gpiod_chip_close(chip);
+        return -1;
+	}
+    light_ret = gpiod_line_request_output(line_led, "lighter", 0);
+    if(light_ret<0){
+        perror("Request line as output failed\n");
+        gpiod_line_release(line_led);
+    }
+    switch_ret = gpiod_line_request_input(line_switch, "switch");
+    if(switch_ret<0){
+        perror("Request line as input failed\n");
+        gpiod_line_release(line_switch);
+    }
+
+    while(1){
+        switch_val = gpiod_line_get_value(line_switch);
+        if (switch_val < 0) {
+            printf("Error get gpio value");
+            return;
+        }
+        if (switch_val > 0.8) {
+            light_val = 0;
+            light_ret = gpiod_line_set_value(line_led, light_val);
+            if(light_ret<0){
+                perror("Set line output failed\n");
+                gpiod_line_release(line_led);
+            }
+            break;
+        }
+        else{
+            light_val = !light_val;
+            light_ret = gpiod_line_set_value(line_led, light_val);
+            if(light_ret<0){
+                perror("Set line output failed\n");
+                gpiod_line_release(line_led);
+            }
+        }
+    }
+}
+
 
 void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile, int fullscreen)
 {
@@ -590,31 +705,25 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
 
     char *input = input_pic_path;
     float nms=.45;
-    // print current directory
-    printf("Current directory: ");
 
-    // int ret = system("pwd");
-    // if (ret != 0) {
-    //     perror("Unable to print current directory\n");
-    //     exit(1);
-    // }
-    // return;
     while(1){
         sprintf(input_pic_path, "./gen/img_%d.jpg", cnt);
 
-            while(1){
-                printf("Taking a picture to %s\n", input_pic_path);
-                sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d.jpg", cnt);
-                int result = system(take_pic_cmd);
+        light_ldle_with_switch(120, 123);
 
-                if (result != 0) {
-                    printf("Unable to take a picture\n");
-                    printf("Command status: %d\n", result);
-                } 
-                else break;          
-            }
-            printf("Picture taken\n");
-            
+        while(1){
+            printf("Taking a picture to %s\n", input_pic_path);
+            sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d.jpg", cnt);
+            int result = system(take_pic_cmd);
+
+            if (result != 0) {
+                printf("Unable to take a picture\n");
+                printf("Command status: %d\n", result);
+            } 
+            else break;          
+        }
+        printf("Picture taken\n");
+        
         // Wait for the file to exist using a blocking method
         while (access(input_pic_path, F_OK) == -1) // File does not exist yet, continue waiting
         ;;
