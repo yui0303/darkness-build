@@ -599,7 +599,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             //take a picture
             pid_t child_pid = fork();
             if (child_pid < 0) {
-                printf("Unable to fork\n");
+                perror("Unable to fork\n");
                 exit(1);
             }
             else if(child_pid == 0) {
