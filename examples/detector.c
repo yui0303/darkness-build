@@ -565,13 +565,23 @@ void validate_detector_recall(char *cfgfile, char *weightfile)
 void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filename, float thresh, float hier_thresh, char *outfile, int fullscreen)
 {
     int cnt = 0;
+
     list *options = read_data_cfg(datacfg);
+    list *coco_options = read_data_cfg("./custom_data/coco.data");
+
     char *name_list = option_find_str(options, "names", "data/names.list");
+    char *coco_name_list = option_find_str(coco_options, "names", "data/names.list");
+
     char **names = get_labels(name_list);
+    char **coco_names = get_labels(coco_name_list);
 
     image **alphabet = load_alphabet();
+
     network *net = load_network(cfgfile, weightfile, 0);
+    network *coco_net = load_network("./custom_data/coco.cfg", "./custom_data/coco.weights", 0);
+
     set_batch_network(net, 1);
+    set_batch_network(coco_net, 1);
     srand(2222222);
     double time;
     char input_pic_path[256]={0};
@@ -590,58 +600,61 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     // }
     // return;
     while(1){
-        // printf("In while loop\n");
-        if(filename){
-            strncpy(input, filename, 255);
-            input[255] = '\0';
-        } else {
-            // printf("Enter Image Path: ");
-            sprintf(input_pic_path, "./gen/img_%d.jpg", cnt);
+        sprintf(input_pic_path, "./gen/img_%d.jpg", cnt);
 
-            //take a picture
-            // pid_t child_pid = fork();
-            // if (child_pid < 0) {
-            //     perror("Unable to fork\n");
-            //     exit(1);
-            // }
-            // else if(child_pid == 0) {
-                while(1){
-                    printf("Taking a picture to %s\n", input_pic_path);
-                    // sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d", cnt);
-                    sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d.jpg", cnt);
-                    int result = system(take_pic_cmd);
+            while(1){
+                printf("Taking a picture to %s\n", input_pic_path);
+                sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d.jpg", cnt);
+                int result = system(take_pic_cmd);
 
-                    if (result != 0) {
-                        printf("Unable to take a picture\n");
-                        printf("Command status: %d\n", result);
-                    } 
-                    else break;          
-                }
-                printf("Picture taken\n");
-                // exit(0);
-            // }
+                if (result != 0) {
+                    printf("Unable to take a picture\n");
+                    printf("Command status: %d\n", result);
+                } 
+                else break;          
+            }
+            printf("Picture taken\n");
+            
+        // Wait for the file to exist using a blocking method
+        while (access(input_pic_path, F_OK) == -1) // File does not exist yet, continue waiting
+        ;;
+        strtok(input, "\n");
+        
+        // ======================= coco =================================
 
-            // Wait for the file to exist using a blocking method
-            while (access(input_pic_path, F_OK) == -1) // File does not exist yet, continue waiting
-            ;;
-            printf("File exists\n");
-            // fflush(stdout);
-            // input = fgets(input, 256, stdin);
-            // if(!input) return;
-            strtok(input, "\n");
-        }
-        printf("load image color\n");
         image im = load_image_color(input,0,0);
+        image coco_sized = letterbox_image(im, coco_net->w, coco_net->h);
+        layer coco_l = coco_net->layers[coco_net->n-1];
+        
+        float *coco_X = coco_sized.data;
+        sprintf(predict_path, "./predictions/predict_%d", cnt++);
+        time=what_time_is_it_now();
+        network_predict(coco_net, coco_X);
+        printf("%s: Top Model Predicted in %f seconds.\n", predict_path, what_time_is_it_now()-time);
+        int coco_nboxes = 0;
+        detection *coco_dets = get_network_boxes(coco_net, im.w, im.h, thresh, hier_thresh, 0, 1, &coco_nboxes);
+        //printf("%d\n", nboxes);
+        //if (nms) do_nms_obj(boxes, probs, l.w*l.h*l.n, l.classes, nms);
+        if (nms) do_nms_sort(coco_dets, coco_nboxes, coco_l.classes, nms);
+        int coco_is_detect = draw_detections2(im, coco_dets, coco_nboxes, thresh, coco_names, alphabet, coco_l.classes);
+        free_detections(coco_dets, coco_nboxes);
+
+        if (coco_is_detect == 1) {
+            save_image(im, predict_path);
+            // free_image(im);
+            free_image(coco_sized);
+            continue;
+        }
+
+        // ==============================================================
+
+        // image im = load_image_color(input,0,0);
         image sized = letterbox_image(im, net->w, net->h);
-        //image sized = resize_image(im, net->w, net->h);
-        //image sized2 = resize_max(im, net->w);
-        //image sized = crop_image(sized2, -((net->w - sized2.w)/2), -((net->h - sized2.h)/2), net->w, net->h);
-        //resize_network(net, sized.w, sized.h);
+
         layer l = net->layers[net->n-1];
 
-        printf("hello\n");
         float *X = sized.data;
-        sprintf(predict_path, "./predictions/predict_%d", cnt++);
+        // sprintf(predict_path, "./predictions/predict_%d", cnt++);
         time=what_time_is_it_now();
         network_predict(net, X);
         printf("%s: Predicted in %f seconds.\n", predict_path, what_time_is_it_now()-time);
@@ -652,25 +665,12 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         if (nms) do_nms_sort(dets, nboxes, l.classes, nms);
         draw_detections(im, dets, nboxes, thresh, names, alphabet, l.classes);
         free_detections(dets, nboxes);
-        if(outfile){
-            save_image(im, outfile);
-        }
-        else{
-            save_image(im, predict_path);
-#ifdef OPENCV
-            make_window("predictions", 512, 512, 0);
-            show_image(im, "predictions", 0);
-#endif
-        }
+
+        save_image(im, predict_path);
 
         free_image(im);
         free_image(sized);
 
-        // if (remove(buff) == -1) {
-        //     printf("Unable to remove the file %s\n", buff);
-        // } 
-
-        if (filename) break;
     }
 }
 
