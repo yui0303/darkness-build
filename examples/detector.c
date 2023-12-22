@@ -599,7 +599,8 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             //take a picture
             while(1){
                 printf("Taking a picture to %s\n", input_pic_path);
-                sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d", cnt);
+                // sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=./gen/img_%d", cnt);
+                sprintf(take_pic_cmd, "v4l2-ctl --stream-mmap --stream-count=1 --stream-to=../final/gen/img_%d.jpg", cnt);
                 int result = system(take_pic_cmd);
                 if (result != 0) {
                     printf("Unable to take a picture\n");
