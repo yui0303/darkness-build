@@ -754,6 +754,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         free_detections(coco_dets, coco_nboxes);
 
         if (coco_is_detect == 1) {
+            light_with_line(121);
             save_image(im, predict_path);
             // free_image(im);
             free_image(coco_sized);
@@ -777,9 +778,12 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         //printf("%d\n", nboxes);
         //if (nms) do_nms_obj(boxes, probs, l.w*l.h*l.n, l.classes, nms);
         if (nms) do_nms_sort(dets, nboxes, l.classes, nms);
-        draw_detections(im, dets, nboxes, thresh, names, alphabet, l.classes);
+        int coin_is_detect = draw_detections2(im, dets, nboxes, thresh, names, alphabet, l.classes);
         free_detections(dets, nboxes);
 
+        if (coin_is_detect == 1){
+            light_with_line(121);
+        }
         save_image(im, predict_path);
 
         free_image(im);
