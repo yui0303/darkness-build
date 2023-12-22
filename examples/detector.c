@@ -6,7 +6,7 @@
 #define IDLE 120
 #define COIN 121
 #define XLIGHT 122
-#define SWITCH_PIN 125
+#define SWITCH_PIN 123
 #define PERSON 145
 #define DOG 146
 
