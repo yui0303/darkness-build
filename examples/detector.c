@@ -600,7 +600,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
             pid_t child_pid = fork();
             if (child_pid < 0) {
                 perror("Unable to fork\n");
-                exit(1);
+                // exit(1);
             }
             else if(child_pid == 0) {
                 while(1){
@@ -616,7 +616,7 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
                     else break;          
                 }
                 printf("Picture taken\n");
-                exit(0);
+                // exit(0);
             }
 
             // Wait for the file to exist using a blocking method
