@@ -3,12 +3,10 @@
 #include <stdlib.h>
 #include <gpiod.h>
 
-#define IDLE 120
-#define COIN 121
-#define XLIGHT 122
+#define PIN1 120
+#define PIN2 121
+#define PIN3 122
 #define SWITCH_PIN 123
-#define PERSON 145
-#define DOG 146
 
 static int coco_ids[] = {1,2,3,4,5,6,7,8,9,10,11,13,14,15,16,17,18,19,20,21,22,23,24,25,27,28,31,32,33,34,35,36,37,38,39,40,41,42,43,44,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,67,70,72,73,74,75,76,77,78,79,80,81,82,84,85,86,87,88,89,90};
 
@@ -568,122 +566,82 @@ void validate_detector_recall(char *cfgfile, char *weightfile)
     }
 }
 
-void light_with_line(unsigned int line_num)
-{
-    char *chipname="gpiochip0";
-	struct gpiod_chip *chip;
-	struct gpiod_line *line;
-	int ret;
-    unsigned int val;
+// void light_with_line(unsigned int line_num)
+// {
+//     char *chipname="gpiochip0";
+// 	struct gpiod_chip *chip;
+// 	struct gpiod_line *line;
+// 	int ret;
+//     unsigned int val;
 
-    chip = gpiod_chip_open_by_name(chipname);
-    if(!chip){
-		perror("Open chip failed\n");
-		return;
-	}
+//     chip = gpiod_chip_open_by_name(chipname);
+//     if(!chip){
+// 		perror("Open chip failed\n");
+// 		return;
+// 	}
 
-	line = gpiod_chip_get_line(chip, line_num);
+// 	line = gpiod_chip_get_line(chip, line_num);
 
-	if(!line){
-		perror("Get line failed\n");
-		gpiod_chip_close(chip);
-        return;
-	}
+// 	if(!line){
+// 		perror("Get line failed\n");
+// 		gpiod_chip_close(chip);
+//         return;
+// 	}
 
     
-    ret = gpiod_line_request_output(line, "lighter", 0);
-    if(ret<0){
-        perror("Request line as output failed\n");
-        gpiod_line_release(line);
-    }
+//     ret = gpiod_line_request_output(line, "lighter", 0);
+//     if(ret<0){
+//         perror("Request line as output failed\n");
+//         gpiod_line_release(line);
+//     }
 
-    val = 1;
-    for(int i=5; i>0; i--){
-        printf("enter loop!");
-        ret = gpiod_line_set_value(line, val);
-        if(ret<0){
-            perror("Set line output failed\n");
-            gpiod_line_release(line);
-        }
-        // printf("Output %u on line #%u\n", val, line_num);
-        sleep(1);
-        val = !val;
-    }
+//     val = 1;
+//     for(int i=5; i>0; i--){
+//         printf("enter loop!");
+//         ret = gpiod_line_set_value(line, val);
+//         if(ret<0){
+//             perror("Set line output failed\n");
+//             gpiod_line_release(line);
+//         }
+//         // printf("Output %u on line #%u\n", val, line_num);
+//         sleep(1);
+//         val = !val;
+//     }
 
-    val = 0;
-    ret = gpiod_line_set_value(line, val);
-    if(ret<0){
-        perror("Set line output failed\n");
-        gpiod_line_release(line);
-    }
-    gpiod_line_release(line);
-    gpiod_chip_close(chip);
-}
+//     val = 0;
+//     ret = gpiod_line_set_value(line, val);
+//     if(ret<0){
+//         perror("Set line output failed\n");
+//         gpiod_line_release(line);
+//     }
+//     gpiod_line_release(line);
+//     gpiod_chip_close(chip);
+// }
 
-void light_ldle_with_switch(unsigned int line_num_light, unsigned int line_num_switch)
+void wait_for_switch()
 {
     char *chipname="gpiochip0";
 	struct gpiod_chip *chip;
-	struct gpiod_line *line_led, *line_switch;
-	int light_ret, switch_ret;
-    unsigned int light_val = 0;
+	struct gpiod_line *line_switch;
+	int switch_ret;
     double switch_val;
     
-
     chip = gpiod_chip_open_by_name(chipname);
-    if(!chip){
-		perror("Open chip failed\n");
-		return;
-	}
-    line_led = gpiod_chip_get_line(chip, line_num_light);
-    if(!line_led){
-		perror("Get line failed\n");
-		gpiod_chip_close(chip);
-        return;
-	}
-    line_switch = gpiod_chip_get_line(chip, line_num_switch);
-    if(!line_switch){
-		perror("Get line failed\n");
-		gpiod_chip_close(chip);
-        return;
-	}
-    light_ret = gpiod_line_request_output(line_led, "lighter", 0);
-    if(light_ret<0){
-        perror("Request line as output failed\n");
-        gpiod_line_release(line_led);
-    }
+    if(!chip){ perror("Open chip failed\n"); return; }
+
+    line_switch = gpiod_chip_get_line(chip, SWITCH_PIN);
+    if(!line_switch){ perror("Get line failed\n"); gpiod_chip_close(chip); return; }
+
     switch_ret = gpiod_line_request_input(line_switch, "switch");
-    if(switch_ret<0){
-        perror("Request line as input failed\n");
-        gpiod_line_release(line_switch);
-    }
+    if(switch_ret<0){ perror("Request line as input failed\n"); gpiod_line_release(line_switch); return; }
 
     while(1){
         switch_val = gpiod_line_get_value(line_switch);
-        if (switch_val < 0) {
-            printf("Error get gpio value");
-            return;
-        }
         if (switch_val > 0.8) {
-            light_val = 0;
-            light_ret = gpiod_line_set_value(line_led, light_val);
-            if(light_ret<0){
-                perror("Set line output failed\n");
-                gpiod_line_release(line_led);
-            }
             break;
         }
-        else{
-            light_val = !light_val;
-            light_ret = gpiod_line_set_value(line_led, light_val);
-            if(light_ret<0){
-                perror("Set line output failed\n");
-                gpiod_line_release(line_led);
-            }
-            sleep(1);
-        }
     }
-    gpiod_line_release(line_led);
+
     gpiod_line_release(line_switch);
     gpiod_chip_close(chip);
 }
@@ -694,25 +652,20 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     int cnt = 0;
     char *chipname="gpiochip0";
 	struct gpiod_chip *chip;
-	struct gpiod_line *line;
-	int ret;
+	struct gpiod_line *line1, *line2, *line3, *line_switch;
+	int ret1, ret2, ret3, ret_switch;
 
-    chip = gpiod_chip_open_by_name(chipname);
-    if(!chip){
-		perror("Open chip failed\n");
-		return;
-	}
-    line = gpiod_chip_get_line(chip, XLIGHT);
-    if(!line){
-		perror("Get line failed\n");
-		gpiod_chip_close(chip);
-        return;
-	}
-    ret = gpiod_line_request_output(line, "x", 0);
-    if(ret<0){
-        perror("Request line as output failed\n");
-        gpiod_line_release(line);
-    }
+    chip = gpiod_chip_open_by_name(chipname); if(!chip){ perror("Open chip failed\n"); return; }
+
+    line1 = gpiod_chip_get_line(chip, PIN1); if(!line1){ perror("Get line1 failed\n"); gpiod_chip_close(chip); return; }
+    line2 = gpiod_chip_get_line(chip, PIN2); if(!line2){ perror("Get line2 failed\n"); gpiod_chip_close(chip); return; }
+    line3 = gpiod_chip_get_line(chip, PIN3); if(!line3){ perror("Get line3 failed\n"); gpiod_chip_close(chip); return; }
+    line_switch = gpiod_chip_get_line(chip, SWITCH_PIN); if(!line_switch){ perror("Get line switch failed\n"); gpiod_chip_close(chip); return; }
+    
+    ret1 = gpiod_line_request_output(line1, "line1", 0); if (ret1<0){ perror("Request line1 as output failed\n"); gpiod_line_release(line1); return; }
+    ret2 = gpiod_line_request_output(line2, "line2", 0); if (ret2<0){ perror("Request line2 as output failed\n"); gpiod_line_release(line2); return; }
+    ret3 = gpiod_line_request_output(line3, "line3", 0); if (ret3<0){ perror("Request line3 as output failed\n"); gpiod_line_release(line3); return; }
+    ret_switch = gpiod_line_request_input(line_switch, "switch"); if (ret_switch<0){ perror("Request line switch as input failed\n"); gpiod_line_release(line_switch); }
 
     list *options = read_data_cfg(datacfg);
     list *coco_options = read_data_cfg("./custom_data/coco.data");
@@ -742,7 +695,15 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
     while(1){
         sprintf(input_pic_path, "./gen/img_%d.jpg", cnt);
 
-        light_ldle_with_switch(IDLE, SWITCH_PIN);
+        ret1 = gpiod_line_set_value(line1, 1); if(ret1<0){ perror("Set line1 output failed\n"); gpiod_line_release(line1); return; }
+        ret2 = gpiod_line_set_value(line2, 1); if(ret2<0){ perror("Set line2 output failed\n"); gpiod_line_release(line2); return; }
+        ret3 = gpiod_line_set_value(line3, 1); if(ret3<0){ perror("Set line3 output failed\n"); gpiod_line_release(line3); return; }
+
+        wait_for_switch();
+
+        ret1 = gpiod_line_set_value(line1, 0); if(ret1<0){ perror("Set line1 output failed\n"); gpiod_line_release(line1); return; }
+        ret2 = gpiod_line_set_value(line2, 0); if(ret2<0){ perror("Set line2 output failed\n"); gpiod_line_release(line2); return; }
+        ret3 = gpiod_line_set_value(line3, 0); if(ret3<0){ perror("Set line3 output failed\n"); gpiod_line_release(line3); return; }
 
         while(1){
             printf("Taking a picture to %s\n", input_pic_path);
@@ -783,19 +744,34 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         free_detections(coco_dets, coco_nboxes);
 
         if (coco_is_detect > 0 && coco_is_detect < 3) { // 1 = person, 2 = dog
-            unsigned int num = coco_is_detect == 2 ? DOG : PERSON;
-            light_with_line(num);
+            // unsigned int num = coco_is_detect == 2 ? PIN3 : PIN2;
+            unsigned int val = 1;
+            for (int i=0; i<5; i++){
+                int ret = coco_is_detect == 2 ? gpiod_line_set_value(line3, val) : gpiod_line_set_value(line2, val);
+                if(ret<0){ 
+                    perror("Set line output failed\n");  
+                    if (coco_is_detect == 2) gpiod_line_release(line3);
+                    else gpiod_line_release(line2);
+                    return;
+                }
+                sleep(1);
+                val = !val;
+            }
+            val = 0;
+            int ret = coco_is_detect == 2 ? gpiod_line_set_value(line3, val) : gpiod_line_set_value(line2, val);
+            if(ret<0){ 
+                perror("Set line output failed\n");  
+                if (coco_is_detect == 2) gpiod_line_release(line3);
+                else gpiod_line_release(line2);
+                return;
+            }
+
             save_image(im, predict_path);
-            // free_image(im);
             free_image(coco_sized);
             continue;
         }
 
-        ret = gpiod_line_set_value(line, 1);
-        if(ret<0){
-            perror("Set line output failed\n");
-            gpiod_line_release(line);
-        }
+        ret1 = gpiod_line_set_value(line1, 1); if(ret1<0){ perror("Set line1 output failed\n"); gpiod_line_release(line1); }
 
         // ==============================================================
 
@@ -817,15 +793,21 @@ void test_detector(char *datacfg, char *cfgfile, char *weightfile, char *filenam
         int coin_is_detect = draw_detections2(im, dets, nboxes, thresh, names, alphabet, l.classes);
         free_detections(dets, nboxes);
 
-        ret = gpiod_line_set_value(line, 0);
-        if(ret<0){
-            perror("Set line output failed\n");
-            gpiod_line_release(line);
-        }
 
         if (coin_is_detect == 1){
-            light_with_line(COIN);
+            int tmp1, tmp2;
+            unsigned int val = 1;
+            for (int i=0; i<5; i++){
+                tmp1 = gpiod_line_set_value(line1, val); if(tmp1<0){ perror("Set line output failed\n"); gpiod_line_release(line1); return; }
+                tmp2 = gpiod_line_set_value(line2, val); if(tmp2<0){ perror("Set line output failed\n"); gpiod_line_release(line3); return; }
+                sleep(1);
+                val = !val;
+            }
+            val = 0;
+            tmp1 = gpiod_line_set_value(line1, val); if(tmp1<0){ perror("Set line output failed\n"); gpiod_line_release(line1); return; }
+            tmp2 = gpiod_line_set_value(line2, val); if(tmp2<0){ perror("Set line output failed\n"); gpiod_line_release(line3); return;}
         }
+
         save_image(im, predict_path);
 
         free_image(im);
