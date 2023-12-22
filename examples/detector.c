@@ -675,6 +675,9 @@ void light_ldle_with_switch(unsigned int line_num_light, unsigned int line_num_s
             sleep(1);
         }
     }
+    gpiod_line_release(line_led);
+    gpiod_line_release(line_switch);
+    gpiod_chip_close(chip);
 }
 
 
